@@ -7,12 +7,11 @@
 //
 
 
-#import <UIKit/UIKit.h>
 #import "ZSSRichTextEditor.h"
 #import "KWEditorBar.h"
 #import "KWFontStyleBar.h"
-#import "UIWebView+VJJSTool.h"
-#import "UIWebView+HackishAccessoryHiding.h"
+#import "WKWebView+VJJSTool.h"
+#import "WKWebView+HackishAccessoryHiding.h"
 #import "NSString+VJUUID.h"
 
 
@@ -30,7 +29,7 @@
 @import JavaScriptCore;
 
 
-@interface ZSSRichTextEditor ()<KWEditorBarDelegate,KWFontStyleBarDelegate,UIWebViewDelegate, UITextViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate>
+@interface ZSSRichTextEditor ()<KWEditorBarDelegate,KWFontStyleBarDelegate,WKNavigationDelegate,WKUIDelegate, UITextViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate,WKScriptMessageHandler>
 
 /*
  *  BOOL for holding if the resources are loaded or not
@@ -66,7 +65,7 @@
 /*
  *  Method for getting a tidied version of the html
  */
-- (NSString *)tidyHTML:(NSString *)html;
+- (void)tidyHTML:(NSString *)html complete:(callBack)block;
 
 @property (nonatomic,strong) KWEditorBar *toolBarView;
 @property (nonatomic,strong) KWFontStyleBar *fontBar;
@@ -83,7 +82,7 @@
  */
 @implementation ZSSRichTextEditor
 
-#pragma mark - View Did Load Section
+#pragma mark - liftcycle
 - (void)viewDidLoad {
     
     [super viewDidLoad];
@@ -93,6 +92,19 @@
     
     [self addNotification];
 }
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+//    [self.editorView.configuration.userContentController addScriptMessageHandler:self name:@"column"];
+
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+//    [self.editorView.configuration.userContentController removeScriptMessageHandlerForName:@"column"];
+    
+}
+
 
 -(void)dealloc{
     [self removeNotification];
@@ -238,12 +250,19 @@
 
 #pragma mark - keyboard
 - (void)keyBoardWillChangeFrame:(NSNotification*)notification{
-    CGRect frame = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGRect frame = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];    
     CGFloat duration = [notification.userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     if (frame.origin.y == pDeviceHeight) {
         [UIView animateWithDuration:duration animations:^{
             self.toolBarView.transform =  CGAffineTransformIdentity;
             self.toolBarView.keyboardButton.selected = NO;
+            
+            static int a = 0;
+            if (a != 0) {
+                [self.editorView hiddenKeyboard];
+            }
+            a++;
+            
         }];
     }else{
         [UIView animateWithDuration:duration animations:^{
@@ -256,6 +275,8 @@
     }
 }
 
+
+
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
 {
     if([keyPath isEqualToString:@"transform"]){
@@ -263,9 +284,32 @@
         CGRect fontBarFrame = self.fontBar.frame;
         fontBarFrame.origin.y = CGRectGetMaxY(self.toolBarView.frame)- KWFontBar_Height - KWEditorBar_Height;
         self.fontBar.frame = fontBarFrame;
+    }else if([keyPath isEqualToString:@"URL"]){
+        
+        NSString *urlString = self.editorView.URL.absoluteString;
+        NSLog(@"URL------%@",urlString);
+        [self handleEvent:urlString];
     }else{
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
+}
+
+//处理键盘工具条显示与隐藏
+- (void)handleEvent:(NSString *)urlString{
+    
+    if ([urlString hasPrefix:@"state-title://"] || [urlString hasPrefix:@"state-abstract-title://"]) {
+        self.fontBar.hidden = YES;
+        self.toolBarView.hidden = YES;
+        
+    }else if([urlString rangeOfString:@"callback://0/"].location != NSNotFound){
+        self.fontBar.hidden = NO;
+        self.toolBarView.hidden = NO;
+        
+        //更新 toolbar
+        NSString *className = [urlString stringByReplacingOccurrencesOfString:@"callback://0/" withString:@""];
+        [self.fontBar updateFontBarWithButtonName:className];
+    }
+    
 }
 
 #pragma mark - Editor Interaction
@@ -291,16 +335,21 @@
     //    self.sourceView.text = html;
     NSString *cleanedHTML = [self removeQuotesFromHTML:html];
     NSString *trigger = [NSString stringWithFormat:@"zss_editor.setHTML(\"%@\");", cleanedHTML];
-    [self.editorView stringByEvaluatingJavaScriptFromString:trigger];
-    
+    [self.editorView evaluateJavaScript:trigger completionHandler:nil];
+
 }
 
-- (NSString *)getHTML {
+- (void)getHTML:(callBack)block {
     
-    NSString *html = [self.editorView stringByEvaluatingJavaScriptFromString:@"zss_editor.getHTML();"];
-    html = [self removeQuotesFromHTML:html];
-    html = [self tidyHTML:html];
-    return html;
+    [self.editorView evaluateJavaScript:@"zss_editor.getHTML();" completionHandler:^(id _Nullable html, NSError * _Nullable error) {
+        
+        html = [self removeQuotesFromHTML:html];
+        
+        [self tidyHTML:html complete:^(NSString *html) {
+            block(html);
+        }];
+        
+    }];
     
 }
 
@@ -308,12 +357,16 @@
     
     NSString *cleanedHTML = [self removeQuotesFromHTML:html];
     NSString *trigger = [NSString stringWithFormat:@"zss_editor.insertHTML(\"%@\");", cleanedHTML];
-    [self.editorView stringByEvaluatingJavaScriptFromString:trigger];
+    [self.editorView evaluateJavaScript:trigger completionHandler:nil];
 }
 
-- (NSString *)getText {
-    return [self.editorView stringByEvaluatingJavaScriptFromString:@"zss_editor.getText();"];
-}
+- (void)getText:(callBack)block {
+    
+    [self.editorView evaluateJavaScript:@"zss_editor.getText();" completionHandler:^(id _Nullable html, NSError * _Nullable error) {
+        
+        block(html);
+    }];
+    }
 
 - (void)dismissKeyboard {
     [self.view endEditing:YES];
@@ -321,7 +374,7 @@
 
 - (void)removeFormat {
     NSString *trigger = @"zss_editor.removeFormating();";
-    [self.editorView stringByEvaluatingJavaScriptFromString:trigger];
+    [self.editorView evaluateJavaScript:trigger completionHandler:nil];
 }
 
 
@@ -331,7 +384,7 @@
     if (self.toolBarView.transform.ty >= 0) {
         [self.editorView focusTextEditor];
     }
-    [self.editorView stringByEvaluatingJavaScriptFromString:@"zss_editor.prepareInsert();"];
+    [self.editorView evaluateJavaScript:@"zss_editor.prepareInsert();" completionHandler:nil];
     [self showInsertLinkDialogWithLink:nil title:nil];
 }
 
@@ -381,23 +434,23 @@
 
 - (void)insertImage:(NSString *)url alt:(NSString *)alt {
     NSString *trigger = [NSString stringWithFormat:@"zss_editor.insertImage(\"%@\", \"%@\");", url, alt];
-    [self.editorView stringByEvaluatingJavaScriptFromString:trigger];
+    [self.editorView evaluateJavaScript:trigger completionHandler:nil];
 }
 
 
 - (void)updateImage:(NSString *)url alt:(NSString *)alt {
     NSString *trigger = [NSString stringWithFormat:@"zss_editor.updateImage(\"%@\", \"%@\");", url, alt];
-    [self.editorView stringByEvaluatingJavaScriptFromString:trigger];
+    [self.editorView evaluateJavaScript:trigger completionHandler:nil];
 }
 
 - (void)insertImageBase64String:(NSString *)imageBase64String alt:(NSString *)alt {
     NSString *trigger = [NSString stringWithFormat:@"zss_editor.insertImageBase64String(\"%@\", \"%@\");", imageBase64String, alt];
-    [self.editorView stringByEvaluatingJavaScriptFromString:trigger];
+    [self.editorView evaluateJavaScript:trigger completionHandler:nil];
 }
 
 - (void)updateImageBase64String:(NSString *)imageBase64String alt:(NSString *)alt {
     NSString *trigger = [NSString stringWithFormat:@"zss_editor.updateImageBase64String(\"%@\", \"%@\");", imageBase64String, alt];
-    [self.editorView stringByEvaluatingJavaScriptFromString:trigger];
+    [self.editorView evaluateJavaScript:trigger completionHandler:nil];
 }
 
 #pragma mark - Image Picker Delegate
@@ -433,38 +486,17 @@
 }
 
 
-#pragma mark - UIWebView Delegate
+#pragma mark - WKNavigationDelegate
 
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-    
-    NSString *urlString = [[request URL] absoluteString];
-    NSLog(@"urlString = %@",urlString);
-    
-    [self handleEvent:urlString];
-    
-    return YES;
-}
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler{
 
-//处理键盘工具条显示与隐藏
-- (void)handleEvent:(NSString *)urlString{
-    
-    if ([urlString hasPrefix:@"state-title://"] || [urlString hasPrefix:@"state-abstract-title://"]) {
-        self.fontBar.hidden = YES;
-        self.toolBarView.hidden = YES;
-        
-    }else if([urlString rangeOfString:@"callback://0/"].location != NSNotFound){
-        self.fontBar.hidden = NO;
-        self.toolBarView.hidden = NO;
-        
-        //更新 toolbar
-        NSString *className = [urlString stringByReplacingOccurrencesOfString:@"callback://0/" withString:@""];
-        [self.fontBar updateFontBarWithButtonName:className];
-    }
+    decisionHandler(WKNavigationActionPolicyAllow);
     
 }
 
-
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
+- (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation{
+    
+    
     self.editorLoaded = YES;
     
     
@@ -493,36 +525,67 @@
     if (self.vj_hideColumn) {
         [self.editorView hideColumn];
     }
+
+
+}
+
+#pragma mark - WKUIDelegate
+// 显示一个按钮。点击后调用completionHandler回调
+- (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler{
     
-    __weak typeof(self) weakSelf = self;
-    JSContext *ctx = [webView valueForKeyPath:@"documentView.webView.mainFrame.javaScriptContext"];
-    ctx[@"column"] = ^() {
-        
-        NSLog(@"+++++++Begin Log+++++++");
-        NSArray *args = [JSContext currentArguments];
-        
-        for (JSValue *jsVal in args) {
-            NSLog(@"%@", jsVal);
-        }
-        
-        JSValue *this = [JSContext currentThis];
-        NSLog(@"this: %@",this);
-        NSLog(@"-------End Log-------");
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf didSelectedColumn];
-        });
-        
-        
-    };
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:message message:nil preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+
+        completionHandler();
+    }]];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+// 显示两个按钮，通过completionHandler回调判断用户点击的确定还是取消按钮
+- (void)webView:(WKWebView *)webView runJavaScriptConfirmPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completionHandler{
     
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:message message:nil preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        completionHandler(YES);
+    }]];
+    [alertController addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        completionHandler(NO);
+    }]];
+    [self presentViewController:alertController animated:YES completion:nil];
+    
+}
+
+// 显示一个带有输入框和一个确定按钮的，通过completionHandler回调用户输入的内容
+- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable))completionHandler{
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"" message:nil preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        
+    }];
+    [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        
+        completionHandler(alertController.textFields.lastObject.text);
+    }]];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+#pragma mark - WKScriptMessageHandler
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message
+{
+    
+    NSLog(@"name  = %@",message.name);
+    //在这里截取H5调用的本地方法
+    if ([message.name isEqualToString:@"column"]){
+        [self didSelectedColumn];
+    }
 }
 
 -(void)didSelectedColumn{
     //需要重写
 }
 
-#pragma mark - Utilities
+
+#pragma mark - methods
 
 - (NSString *)removeQuotesFromHTML:(NSString *)html {
     html = [html stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];
@@ -534,13 +597,19 @@
 }
 
 
-- (NSString *)tidyHTML:(NSString *)html {
+- (void)tidyHTML:(NSString *)html complete:(callBack)block{
     html = [html stringByReplacingOccurrencesOfString:@"<br>" withString:@"<br />"];
     html = [html stringByReplacingOccurrencesOfString:@"<hr>" withString:@"<hr />"];
     if (self.formatHTML) {
-        html = [self.editorView stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"style_html(\"%@\");", html]];
+        NSString *str = [NSString stringWithFormat:@"style_html(\"%@\");", html];
+        [self.editorView evaluateJavaScript:str completionHandler:^(id _Nullable returnHtml, NSError * _Nullable error) {
+            
+            block(returnHtml);
+            
+        }];
+        
+        
     }
-    return html;
 }
 
 - (NSString *)stringByDecodingURLFormat:(NSString *)string {
@@ -550,12 +619,17 @@
 }
 
 #pragma mark - vj edit
-- (NSString *)vj_getHTMLTitle {
-    return [self.editorView vj_getHTMLTitle];
+- (void)vj_getHTMLTitle:(callBack)block {
+    
+    [self.editorView vj_getHTMLTitle:^(NSString * _Nonnull html) {
+        block(html);
+    }];
 }
 
-- (NSString *)vj_getHTMLAbstract {
-    return [self.editorView vj_getHTMLAbstract];
+- (void)vj_getHTMLAbstract:(callBack)block{
+    return [self.editorView vj_getHTMLAbstract:^(NSString * _Nonnull html) {
+        block(html);
+    }];
 }
 
 -(void)setColumnTextWithText:(NSString *)text{
@@ -582,19 +656,28 @@
      NSKeyValueObservingOptionOld|NSKeyValueObservingOptionNew context:nil];
 }
 
--(UIWebView *)editorView{
+-(WKWebView *)editorView{
     if (!_editorView) {
-        _editorView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, pDeviceWidth, pDeviceHeight-pStatusBarHeight-pNavigationHeight-KWEditorBar_Height)];
-        _editorView.delegate = self;
-        _editorView.hidesInputAccessoryView = YES;
-        _editorView.keyboardDisplayRequiresUserAction = NO;
-        _editorView.scalesPageToFit = YES;
-        _editorView.dataDetectorTypes = UIDataDetectorTypeNone;
+        
+        WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc]init];
+        WKUserContentController *userCon = [[WKUserContentController alloc]init];
+        config.userContentController = userCon;
+        _editorView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, pDeviceWidth, self.view.frame.size.height-KWEditorBar_Height) configuration:config];
+        [userCon addScriptMessageHandler:self name:@"column"];
+        _editorView.navigationDelegate = self;
+        _editorView.UIDelegate = self;
+        [_editorView removeInputAccessoryViewFromWKWebView:_editorView];
+        [_editorView allowDisplayingKeyboardWithoutUserAction];
         _editorView.scrollView.bounces = NO;
         _editorView.backgroundColor = [UIColor whiteColor];
+        [_editorView addObserver:self forKeyPath:@"URL" options:NSKeyValueObservingOptionNew context:nil];
+
     }
     return _editorView;
 }
+
+
+
 
 - (KWEditorBar *)toolBarView{
     if (!_toolBarView) {

@@ -40,92 +40,74 @@ zss_editor.init = function() {
     
     $('#zss_editor_content').on('touchend', function(e) {
                                 zss_editor.enabledEditingItems(e);
-                                var clicked = $(e.target);
-                                if (!clicked.hasClass('zs_active')) {
-                                $('img').removeClass('zs_active');
-                                }
+//                                var clicked = $(e.target);
+//                                if (!clicked.hasClass('zs_active')) {
+//                                $('img').removeClass('zs_active');
+//                                }
                                 });
     
     $(document).on('selectionchange',function(e){
                    zss_editor.calculateEditorHeightWithCaretPosition();
-                   zss_editor.setScrollPosition();
+//                   zss_editor.setScrollPosition();
                    zss_editor.enabledEditingItems(e);
                    });
     
-//    $(window).on('scroll', function(e) {
-//                 zss_editor.updateOffset();
+
+//    $(window).on('touchmove', function(e) {
+//                 zss_editor.isDragging = true;
+//                 zss_editor.updateScrollOffset = true;
+////                 zss_editor.setScrollPosition();
+//                 zss_editor.enabledEditingItems(e);
+//                 });
+//    $(window).on('touchstart', function(e) {
+//                 zss_editor.isDragging = false;
+//                 });
+//    $(window).on('touchend', function(e) {
+//                 if (!zss_editor.isDragging && (e.target.id == "zss_editor_footer"||e.target.nodeName.toLowerCase() == "html")) {
+//                 zss_editor.focusEditor();
+//                 }
 //                 });
     
-    // Make sure that when we tap anywhere in the document we focus on the editor
-    $(window).on('touchmove', function(e) {
-                 zss_editor.isDragging = true;
-                 zss_editor.updateScrollOffset = true;
-                 zss_editor.setScrollPosition();
-                 zss_editor.enabledEditingItems(e);
-                 });
-    $(window).on('touchstart', function(e) {
-                 zss_editor.isDragging = false;
-                 });
-    $(window).on('touchend', function(e) {
-                 if (!zss_editor.isDragging && (e.target.id == "zss_editor_footer"||e.target.nodeName.toLowerCase() == "html")) {
-                 zss_editor.focusEditor();
-                 }
-                 });
-    
-}//end
-
-
-
-zss_editor.updateOffset = function() {
-    
-//    if (!zss_editor.updateScrollOffset)
-//        return;
-//
-//    var offsetY = window.document.body.scrollTop;
-//
-//    var footer = $('#zss_editor_footer');
-//
-//    var maxOffsetY = footer.offset().top - zss_editor.contentHeight;
-//
-//    if (maxOffsetY < 0)
-//        maxOffsetY = 0;
-//
-//    if (offsetY > maxOffsetY)
-//    {
-//        window.scrollTo(0, maxOffsetY);
-//    }
-//
-//    zss_editor.setScrollPosition();
 }
 
 zss_editor.calculateEditorHeightWithCaretPosition = function() {
     
     var artContent = document.getElementById('zss_editor_content');
-    
+
     if (artContent == document.activeElement) {
-        
-        var tabbarHeight = 44+44; //自定义 tabbat 高度
-        
-        var padding = 100; // 自定义值
-        
+
+        var tabbarHeight = 0; //自定义 tabbar 高度
+
+        var padding = 60; // 自定义值
+
         var col = document.getElementById("vj_column").offsetHeight;
         var tit = document.getElementById("vj_title").offsetHeight;
         var absTit = document.getElementById("vj_abstract-title").offsetHeight;
-        
+
         var initHeight = col + tit + absTit; //初始光标高度
-        
         var c = zss_editor.getCaretYPosition(); //光标位置
-        var offsetY = window.document.body.scrollTop; //滚动条位置
+      
+        var offsetY;//滚动条位置
+        if (document.documentElement && document.documentElement.scrollTop) {
+            offsetY = document.documentElement.scrollTop;
+        } else if (document.body) {
+            offsetY = document.body.scrollTop;
+        }
+        
         var height = zss_editor.contentHeight; //contentHeight
-        var newPos = window.pageYOffset; //返回文档在窗口垂直方向滚动的像素。
-        
-        
+//        var newPos = window.pageYOffset; //返回文档在窗口垂直方向滚动的像素。
+
         var contentTotalHeight = offsetY + height - initHeight - padding; //滑动到当前位置总高度
+
+        var pos;
         
         if (c > contentTotalHeight) {
-            newPos = offsetY + tabbarHeight;
+            pos = c + tabbarHeight;
+            window.scrollTo(0, pos);
         }
-        window.scrollTo(0, newPos);
+        
+        
+       
     }
 }
 
@@ -691,9 +673,7 @@ zss_editor.enabledEditingItems = function(e) {
 }
 
 zss_editor.focusEditor = function() {
-    
-    // the following was taken from http://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity/3866442#3866442
-    // and ensures we move the cursor to the end of the editor
+
     var editor = $('#zss_editor_content');
     var range = document.createRange();
     range.selectNodeContents(editor.get(0));

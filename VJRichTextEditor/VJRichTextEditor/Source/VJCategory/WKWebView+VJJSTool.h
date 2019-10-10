@@ -1,16 +1,20 @@
 //
-//  UIWebView+VJJSTool.h
-//  ZSSRichTextEditor
+//  WKWebView+VJJSTool.h
+//  VJRichTextEditor
 //
-//  Created by 侯卫嘉 on 2019/6/19.
-//  Copyright © 2019 Zed Said Studio. All rights reserved.
+//  Created by 侯卫嘉 on 2019/9/29.
+//  Copyright © 2019 vj. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
+#import <WebKit/WebKit.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIWebView (VJJSTool)
+@interface WKWebView (VJJSTool)
+
+typedef void (^callBack)(NSString *html);
 
 ///设置 placeholder
 - (void)setPlaceholderTextWith:(NSString *)text;
@@ -79,9 +83,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(void)hideColumn;
 
-- (NSString *)vj_getHTMLTitle;
+- (void)vj_getHTMLTitle:(callBack)block;
 
-- (NSString *)vj_getHTMLAbstract;
+- (void)vj_getHTMLAbstract:(callBack)block;
 
 -(void)setColumnTextWithText:(NSString *)text;
 

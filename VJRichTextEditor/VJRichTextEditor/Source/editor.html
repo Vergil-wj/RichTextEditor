@@ -137,14 +137,15 @@ div.zs_editor_content {
         div.addEventListener('click', test);
         
         function test(e) {
-           column("栏目");
+
+           window.webkit.messageHandlers.column.postMessage({
+                  "body": "buttonActionMessage"
+              });
 
         }
     </script>
     
-    
-
-    
+        
     <div id="vj_title">
         <input id="vj_article_title" maxlength="70" type="text" placeholder="请输入标题">
     </div>

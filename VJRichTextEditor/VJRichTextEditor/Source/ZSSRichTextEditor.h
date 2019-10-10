@@ -7,16 +7,20 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 
 /**
  *  The viewController used with ZSSRichTextEditor
  */
 @interface ZSSRichTextEditor : UIViewController
 
+typedef void (^callBack)(NSString *html);
+
+
 /*
- *  UIWebView for writing/editing/displaying the content
+ *  WKWebView for writing/editing/displaying the content
  */
-@property (nonatomic, strong) UIWebView *editorView;
+@property (nonatomic, strong) WKWebView *editorView;
 
 /**
  *  If the HTML should be formatted to be pretty
@@ -46,13 +50,13 @@
  *  Returns the HTML from the Rich Text Editor
  *
  */
-- (NSString *)getHTML;
+- (void)getHTML:(callBack)block;
 
 /**
  *  Returns the plain text from the Rich Text Editor
  *
  */
-- (NSString *)getText;
+- (void)getText:(callBack)block;
 
 /**
  *  Inserts HTML at the caret position
@@ -69,8 +73,8 @@
 @property(nonatomic,assign)BOOL vj_hideHTMLAbstract;
 @property(nonatomic,assign)BOOL vj_hideColumn;
 
-- (NSString *)vj_getHTMLTitle;
-- (NSString *)vj_getHTMLAbstract;
+- (void)vj_getHTMLTitle:(callBack)block;
+- (void)vj_getHTMLAbstract:(callBack)block;
 
 -(void)setColumnTextWithText:(NSString *)text;
 

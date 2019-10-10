@@ -13,7 +13,7 @@
 -(void)viewDidLoad{
     [super viewDidLoad];
     
-    [self setHTML:@"这是一个测试"];
+    [self setHTML:@"这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这"];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"HTML" style:UIBarButtonItemStylePlain target:self action:@selector(getHTMLText)];
     
@@ -21,18 +21,42 @@
 
 - (void)getHTMLText{
     
-    NSLog(@"title = %@",[self vj_getHTMLTitle]);
-    NSLog(@"absTitle = %@",[self vj_getHTMLAbstract]);
-    NSLog(@"html = %@",[self getHTML]);
-    NSLog(@"text = %@",[self getText]);
+    [self vj_getHTMLTitle:^(NSString *html) {
+        NSLog(@"title = %@",html);
+    }];
+    
+    [self vj_getHTMLAbstract:^(NSString *html) {
+       
+        NSLog(@"abstract = %@",html);
+    }];
+    
+   
+    [self getHTML:^(NSString *html) {
+        NSLog(@"html = %@",html);
+    }];
+    
+    
+    [self getText:^(NSString *html) {
+        NSLog(@"text = %@",html);
+    }];
+    
     
 }
 
 -(void)didSelectedColumn{
-    NSLog(@"选择栏目");
+    
+    
     
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"请选择栏目" message:nil preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    
+    UIAlertAction *confim = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self setColumnTextWithText:@"栏目"];
+    }];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        [self setColumnTextWithText:@""];
+    }];
+    [alert addAction:confim];
     [alert addAction:cancel];
     [self.navigationController presentViewController:alert animated:YES completion:nil];
 }

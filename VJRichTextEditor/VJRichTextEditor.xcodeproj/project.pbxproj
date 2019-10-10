@@ -78,14 +78,15 @@
 		CF4DB4D622C3023B00BDA3DC /* you@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = CF4DB48822C3023B00BDA3DC /* you@3x.png */; };
 		CF4DB4D722C3023B00BDA3DC /* ziti@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CF4DB48922C3023B00BDA3DC /* ziti@2x.png */; };
 		CF4DB4D822C3023B00BDA3DC /* ZSSRichTextEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = CF4DB48A22C3023B00BDA3DC /* ZSSRichTextEditor.m */; };
-		CF4DB4D922C3023B00BDA3DC /* UIWebView+VJJSTool.m in Sources */ = {isa = PBXBuildFile; fileRef = CF4DB48C22C3023B00BDA3DC /* UIWebView+VJJSTool.m */; };
-		CF4DB4DA22C3023B00BDA3DC /* UIWebView+HackishAccessoryHiding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF4DB48E22C3023B00BDA3DC /* UIWebView+HackishAccessoryHiding.m */; };
 		CF4DB4DB22C3023B00BDA3DC /* NSString+VJUUID.m in Sources */ = {isa = PBXBuildFile; fileRef = CF4DB48F22C3023B00BDA3DC /* NSString+VJUUID.m */; };
 		CF4DB4DC22C3023B00BDA3DC /* UIControl+KWButtonExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = CF4DB49222C3023B00BDA3DC /* UIControl+KWButtonExtension.m */; };
 		CF4DB4DD22C3023B00BDA3DC /* JSBeautifier.js in Resources */ = {isa = PBXBuildFile; fileRef = CF4DB49422C3023B00BDA3DC /* JSBeautifier.js */; };
 		CF4DB4DE22C3023B00BDA3DC /* jQuery.js in Resources */ = {isa = PBXBuildFile; fileRef = CF4DB49522C3023B00BDA3DC /* jQuery.js */; };
 		CF4DB4E122C3029F00BDA3DC /* RichTextEditorDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CF4DB4E022C3029F00BDA3DC /* RichTextEditorDemo.m */; };
 		CF4DB4E322C3041B00BDA3DC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CF4DB4E222C3041A00BDA3DC /* LaunchScreen.storyboard */; };
+		CF6A767023408E1A00863373 /* WKWebView+VJJSTool.m in Sources */ = {isa = PBXBuildFile; fileRef = CF6A766F23408E1A00863373 /* WKWebView+VJJSTool.m */; };
+		CF6A767323408E3100863373 /* WKWebView+HackishAccessoryHiding.m in Sources */ = {isa = PBXBuildFile; fileRef = CF6A767223408E3100863373 /* WKWebView+HackishAccessoryHiding.m */; };
+		CFA7BA41234D76A3007CEC7D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CFA7BA40234D76A3007CEC7D /* UIKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -167,12 +168,8 @@
 		CF4DB48822C3023B00BDA3DC /* you@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "you@3x.png"; sourceTree = "<group>"; };
 		CF4DB48922C3023B00BDA3DC /* ziti@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ziti@2x.png"; sourceTree = "<group>"; };
 		CF4DB48A22C3023B00BDA3DC /* ZSSRichTextEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZSSRichTextEditor.m; sourceTree = "<group>"; };
-		CF4DB48C22C3023B00BDA3DC /* UIWebView+VJJSTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWebView+VJJSTool.m"; sourceTree = "<group>"; };
 		CF4DB48D22C3023B00BDA3DC /* UIControl+KWButtonExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIControl+KWButtonExtension.h"; sourceTree = "<group>"; };
-		CF4DB48E22C3023B00BDA3DC /* UIWebView+HackishAccessoryHiding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWebView+HackishAccessoryHiding.m"; sourceTree = "<group>"; };
 		CF4DB48F22C3023B00BDA3DC /* NSString+VJUUID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+VJUUID.m"; sourceTree = "<group>"; };
-		CF4DB49022C3023B00BDA3DC /* UIWebView+VJJSTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWebView+VJJSTool.h"; sourceTree = "<group>"; };
-		CF4DB49122C3023B00BDA3DC /* UIWebView+HackishAccessoryHiding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWebView+HackishAccessoryHiding.h"; sourceTree = "<group>"; };
 		CF4DB49222C3023B00BDA3DC /* UIControl+KWButtonExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIControl+KWButtonExtension.m"; sourceTree = "<group>"; };
 		CF4DB49322C3023B00BDA3DC /* NSString+VJUUID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+VJUUID.h"; sourceTree = "<group>"; };
 		CF4DB49422C3023B00BDA3DC /* JSBeautifier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSBeautifier.js; sourceTree = "<group>"; };
@@ -180,6 +177,11 @@
 		CF4DB4DF22C3029F00BDA3DC /* RichTextEditorDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RichTextEditorDemo.h; sourceTree = "<group>"; };
 		CF4DB4E022C3029F00BDA3DC /* RichTextEditorDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RichTextEditorDemo.m; sourceTree = "<group>"; };
 		CF4DB4E222C3041A00BDA3DC /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		CF6A766E23408E1A00863373 /* WKWebView+VJJSTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WKWebView+VJJSTool.h"; sourceTree = "<group>"; };
+		CF6A766F23408E1A00863373 /* WKWebView+VJJSTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+VJJSTool.m"; sourceTree = "<group>"; };
+		CF6A767123408E3100863373 /* WKWebView+HackishAccessoryHiding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WKWebView+HackishAccessoryHiding.h"; sourceTree = "<group>"; };
+		CF6A767223408E3100863373 /* WKWebView+HackishAccessoryHiding.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+HackishAccessoryHiding.m"; sourceTree = "<group>"; };
+		CFA7BA40234D76A3007CEC7D /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +189,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFA7BA41234D76A3007CEC7D /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -198,6 +201,7 @@
 			children = (
 				CF4DB42B22C301E100BDA3DC /* VJRichTextEditor */,
 				CF4DB42A22C301E100BDA3DC /* Products */,
+				CFA7BA3F234D76A3007CEC7D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -330,12 +334,20 @@
 				CF4DB48F22C3023B00BDA3DC /* NSString+VJUUID.m */,
 				CF4DB48D22C3023B00BDA3DC /* UIControl+KWButtonExtension.h */,
 				CF4DB49222C3023B00BDA3DC /* UIControl+KWButtonExtension.m */,
-				CF4DB49122C3023B00BDA3DC /* UIWebView+HackishAccessoryHiding.h */,
-				CF4DB48E22C3023B00BDA3DC /* UIWebView+HackishAccessoryHiding.m */,
-				CF4DB49022C3023B00BDA3DC /* UIWebView+VJJSTool.h */,
-				CF4DB48C22C3023B00BDA3DC /* UIWebView+VJJSTool.m */,
+				CF6A766E23408E1A00863373 /* WKWebView+VJJSTool.h */,
+				CF6A766F23408E1A00863373 /* WKWebView+VJJSTool.m */,
+				CF6A767123408E3100863373 /* WKWebView+HackishAccessoryHiding.h */,
+				CF6A767223408E3100863373 /* WKWebView+HackishAccessoryHiding.m */,
 			);
 			path = VJCategory;
+			sourceTree = "<group>";
+		};
+		CFA7BA3F234D76A3007CEC7D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CFA7BA40234D76A3007CEC7D /* UIKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -473,14 +485,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CF6A767323408E3100863373 /* WKWebView+HackishAccessoryHiding.m in Sources */,
 				CF4DB43122C301E100BDA3DC /* ViewController.m in Sources */,
 				CF4DB4E122C3029F00BDA3DC /* RichTextEditorDemo.m in Sources */,
-				CF4DB4D922C3023B00BDA3DC /* UIWebView+VJJSTool.m in Sources */,
 				CF4DB43C22C301E200BDA3DC /* main.m in Sources */,
 				CF4DB4DB22C3023B00BDA3DC /* NSString+VJUUID.m in Sources */,
 				CF4DB4D822C3023B00BDA3DC /* ZSSRichTextEditor.m in Sources */,
 				CF4DB49822C3023B00BDA3DC /* KWFontStyleBar.m in Sources */,
-				CF4DB4DA22C3023B00BDA3DC /* UIWebView+HackishAccessoryHiding.m in Sources */,
+				CF6A767023408E1A00863373 /* WKWebView+VJJSTool.m in Sources */,
 				CF4DB4DC22C3023B00BDA3DC /* UIControl+KWButtonExtension.m in Sources */,
 				CF4DB49922C3023B00BDA3DC /* KWEditorBar.m in Sources */,
 				CF4DB42E22C301E100BDA3DC /* AppDelegate.m in Sources */,
