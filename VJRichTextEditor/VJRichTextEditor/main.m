@@ -5,6 +5,7 @@
 //  Created by 侯卫嘉 on 2019/6/26.
 //  Copyright © 2019 vj. All rights reserved.
 //
+//  基于 UIWebView
 
 #import <UIKit/UIKit.h>
 #import "AppDelegate.h"
