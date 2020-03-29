@@ -26,7 +26,7 @@ typedef void (^callBack)(NSString *html);
 
 ///插入链接
 - (void)insertLink:(NSString *)url title:(NSString *)title;
-///跟新链接
+///更新链接
 - (void)updateLink:(NSString *)url title:(NSString *)title;
 ///加粗
 - (void)setBold;

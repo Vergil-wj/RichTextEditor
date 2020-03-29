@@ -6,9 +6,14 @@ iOS 13 之后不再支持 UIWebView,所以将之前一篇文章[iOS 富文本编
 
 ### Objective-C 语言调用 JavaScript 语言
 
-通过WKWebView的 `- (void)evaluateJavaScript:(NSString *)javaScriptString completionHandler:(void (^ _Nullable)(_Nullable id, NSError * _Nullable error))completionHandler;`的方法来实现的。这样我们就可以实现文字的加粗、下划线、斜体等等一切我们想要的样式。
+通过WKWebView的
 
-详见我的项目中 [WKWebView+VJJSTool](https://github.com/Vergil-wj/RichTextEditor) 文件。
+``` 
+- (void)evaluateJavaScript:(NSString *)javaScriptString completionHandler:(void (^ _Nullable)(_Nullable id, NSError * _Nullable error))completionHandler;
+```
+方法来实现的。这样我们就可以实现文字的加粗、下划线、斜体等等一切我们想要的样式。
+
+详见项目中 [WKWebView+VJJSTool](https://github.com/Vergil-wj/RichTextEditor) 文件。
 
 ### JavaScript 语言调用 Objective-C 语言
 
@@ -16,10 +21,10 @@ iOS 13 之后不再支持 UIWebView,所以将之前一篇文章[iOS 富文本编
 
 ```
 WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
-        WKUserContentController *userController = [[WKUserContentController alloc] init];
-        configuration.userContentController = userController;
-        _mainWebView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, KMainWidth, KMainHeight) configuration:configuration];
-        [userController addScriptMessageHandler:self name:@"currentCookies"];
+WKUserContentController *userController = [[WKUserContentController alloc] init];
+configuration.userContentController = userController;
+_mainWebView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, KMainWidth, KMainHeight) configuration:configuration];
+[userController addScriptMessageHandler:self name:@"currentCookies"];
 ```
 
 然后实现代理方法.监听JS的回调.
@@ -57,8 +62,6 @@ function buttonDivAction() {
 ZSSRichTextEditor.js
 
 ```
-zss_editor.updateOffset = function() {}
-
 zss_editor.calculateEditorHeightWithCaretPosition = function() {}
 
 ```
@@ -78,44 +81,10 @@ editor.html
 
 ### 去掉键盘自带的工具条
 
-WKWebView+HackishAccessoryHiding.m
+WKWebView+HackishAccessoryHiding.h
 
 ```
-- (void)removeInputAccessoryViewFromWKWebView:(WKWebView *)webView {
-    UIView *targetView;
-
-    for (UIView *view in webView.scrollView.subviews) {
-        if([[view.class description] hasPrefix:@"WKContent"]) {
-            targetView = view;
-        }
-    }
-
-    if (!targetView) {
-        return;
-    }
-
-    NSString *noInputAccessoryViewClassName = [NSString stringWithFormat:@"%@_NoInputAccessoryView", targetView.class.superclass];
-    Class newClass = NSClassFromString(noInputAccessoryViewClassName);
-
-    if(newClass == nil) {
-        newClass = objc_allocateClassPair(targetView.class, [noInputAccessoryViewClassName cStringUsingEncoding:NSASCIIStringEncoding], 0);
-        if(!newClass) {
-            return;
-        }
-
-        Method method = class_getInstanceMethod([self class], @selector(inputAccessoryView));
-
-        class_addMethod(newClass, @selector(inputAccessoryView), method_getImplementation(method), method_getTypeEncoding(method));
-
-        objc_registerClassPair(newClass);
-    }
-
-    object_setClass(targetView, newClass);
-}
-
-- (id)inputAccessoryView {
-    return nil;
-}
+@property (nonatomic, assign) BOOL hidesInputAccessoryView;
 ```
 
 ### 自动弹出键盘

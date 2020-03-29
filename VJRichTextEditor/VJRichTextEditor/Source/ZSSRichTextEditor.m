@@ -122,14 +122,12 @@
 #pragma mark -editorbarDelegate
 - (void)editorBar:(KWEditorBar *)editorBar didClickIndex:(NSInteger)buttonIndex{
     switch (buttonIndex) {
-        case 0:{//键盘
-            
+        case 0:{//键盘唤醒与隐藏
             if (self.toolBarView.transform.ty < 0) {
                 [self.editorView hiddenKeyboard];
             }else{
                 [self.editorView focusTextEditor];
             }
-            
         }
             break;
         case 1:{//后退
@@ -141,7 +139,6 @@
         }
             break;
         case 3:{//字体
-            
             editorBar.fontButton.selected = !editorBar.fontButton.selected;
             if (editorBar.fontButton.selected) {
                 [self.view addSubview:self.fontBar];
@@ -150,13 +147,12 @@
             }
         }
             break;
-        case 4:{//连接
+        case 4:{//超连接
             [self insertLink];
-        }break;
-        case 5:{//图片
-            
+        }
+            break;
+        case 5:{//本地图片
             [self insertImageFromDevice];
-            
         }
             break;
         default:
@@ -253,6 +249,7 @@
     CGRect frame = [notification.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];    
     CGFloat duration = [notification.userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     if (frame.origin.y == pDeviceHeight) {
+        
         [UIView animateWithDuration:duration animations:^{
             self.toolBarView.transform =  CGAffineTransformIdentity;
             self.toolBarView.keyboardButton.selected = NO;
@@ -265,27 +262,29 @@
             
         }];
     }else{
+        
+        float height = pDeviceHeight-pStatusBarHeight-pNavigationHeight-self.toolBarView.frame.size.height-frame.size.height;
+        [self.editorView setContentHeight: height];
+        
+        
+        
         [UIView animateWithDuration:duration animations:^{
             self.toolBarView.transform = CGAffineTransformMakeTranslation(0, -frame.size.height);
             self.toolBarView.keyboardButton.selected = YES;
-            
-            float height = pDeviceHeight-pStatusBarHeight-pNavigationHeight-self.toolBarView.frame.size.height-frame.size.height;
-            [self.editorView setContentHeight: height];
         }];
     }
 }
 
 
 
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
-{
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context{
+    
     if([keyPath isEqualToString:@"transform"]){
         
         CGRect fontBarFrame = self.fontBar.frame;
         fontBarFrame.origin.y = CGRectGetMaxY(self.toolBarView.frame)- KWFontBar_Height - KWEditorBar_Height;
         self.fontBar.frame = fontBarFrame;
     }else if([keyPath isEqualToString:@"URL"]){
-        
         NSString *urlString = self.editorView.URL.absoluteString;
         NSLog(@"URL------%@",urlString);
         [self handleEvent:urlString];
@@ -300,11 +299,9 @@
     if ([urlString hasPrefix:@"state-title://"] || [urlString hasPrefix:@"state-abstract-title://"]) {
         self.fontBar.hidden = YES;
         self.toolBarView.hidden = YES;
-        
     }else if([urlString rangeOfString:@"callback://0/"].location != NSNotFound){
         self.fontBar.hidden = NO;
         self.toolBarView.hidden = NO;
-        
         //更新 toolbar
         NSString *className = [urlString stringByReplacingOccurrencesOfString:@"callback://0/" withString:@""];
         [self.fontBar updateFontBarWithButtonName:className];
@@ -666,8 +663,7 @@
         [userCon addScriptMessageHandler:self name:@"column"];
         _editorView.navigationDelegate = self;
         _editorView.UIDelegate = self;
-        [_editorView removeInputAccessoryViewFromWKWebView:_editorView];
-        [_editorView allowDisplayingKeyboardWithoutUserAction];
+        _editorView.hidesInputAccessoryView = YES;
         _editorView.scrollView.bounces = NO;
         _editorView.backgroundColor = [UIColor whiteColor];
         [_editorView addObserver:self forKeyPath:@"URL" options:NSKeyValueObservingOptionNew context:nil];

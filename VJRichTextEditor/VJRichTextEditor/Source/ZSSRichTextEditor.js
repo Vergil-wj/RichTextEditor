@@ -33,10 +33,14 @@ zss_editor.contentHeight = 244;
 // Sets to true when extra footer gap shows and requires to hide
 zss_editor.updateScrollOffset = false;
 
+
+zss_editor.touchbegin = false;
+
 /**
  * The initializer function that must be called onLoad
  */
 zss_editor.init = function() {
+    
     
     $('#zss_editor_content').on('touchend', function(e) {
                                 zss_editor.enabledEditingItems(e);
@@ -45,6 +49,10 @@ zss_editor.init = function() {
 //                                $('img').removeClass('zs_active');
 //                                }
                                 });
+    
+    $("#zss_editor_content").focus(function(){
+      zss_editor.touchbegin = true;
+    });
     
     $(document).on('selectionchange',function(e){
                    zss_editor.calculateEditorHeightWithCaretPosition();
@@ -64,6 +72,7 @@ zss_editor.init = function() {
 //                 });
 //    $(window).on('touchend', function(e) {
 //                 if (!zss_editor.isDragging && (e.target.id == "zss_editor_footer"||e.target.nodeName.toLowerCase() == "html")) {
+//                     zss_editor.calculateEditorHeightWithCaretPosition();
 //                 zss_editor.focusEditor();
 //                 }
 //                 });
@@ -76,39 +85,90 @@ zss_editor.calculateEditorHeightWithCaretPosition = function() {
 
     if (artContent == document.activeElement) {
 
-        var tabbarHeight = 0; //自定义 tabbar 高度
+        //行高
+        var lineHeight = 28;
 
-        var padding = 60; // 自定义值
-
+        //栏目\标题\摘要高度
         var col = document.getElementById("vj_column").offsetHeight;
         var tit = document.getElementById("vj_title").offsetHeight;
         var absTit = document.getElementById("vj_abstract-title").offsetHeight;
-
-        var initHeight = col + tit + absTit; //初始光标高度
-        var c = zss_editor.getCaretYPosition(); //光标位置
+        var initHeight = col + tit + absTit;
+        
+        //光标位置为
+        var c = zss_editor.getCaretYPosition()+initHeight+ lineHeight;
       
-        var offsetY;//滚动条位置
+        //滚动条滚动距离,刚开为0;
+        var offsetY;
         if (document.documentElement && document.documentElement.scrollTop) {
             offsetY = document.documentElement.scrollTop;
         } else if (document.body) {
             offsetY = document.body.scrollTop;
         }
         
-        var height = zss_editor.contentHeight; //contentHeight
-//        var newPos = window.pageYOffset; //返回文档在窗口垂直方向滚动的像素。
+        //返回文档在窗口垂直方向滚动的像素。
+//        var newPos = window.pageYOffset;
 
-        var contentTotalHeight = offsetY + height - initHeight - padding; //滑动到当前位置总高度
-
-        var pos;
+        //contentHeight
+        var height = zss_editor.contentHeight;
         
-        if (c > contentTotalHeight) {
-            pos = c + tabbarHeight;
-            window.scrollTo(0, pos);
+        if(c >= height) { //光标位置 > contentHeight
+            
+            var a = offsetY + height - c;
+
+            if(a>0 && a<lineHeight){
+                var pos = c - height + lineHeight;
+                window.scrollTo(0, pos);
+            }else if(c >= offsetY + height){
+                var pos = c - height + lineHeight;
+                window.scrollTo(0, pos);
+            }else{
+                if(zss_editor.touchbegin == true){
+                    
+                    zss_editor.touchbegin = false;
+                    
+                    var pos = c - height + lineHeight;
+                    window.scrollTo(0, pos);
+                }
+            }
+            
         }
-        
         
        
     }
+}
+
+zss_editor.vj_getC = function() {
+    var lineHeight = 28;    //行高
+    var col = document.getElementById("vj_column").offsetHeight;
+    var tit = document.getElementById("vj_title").offsetHeight;
+    var absTit = document.getElementById("vj_abstract-title").offsetHeight;
+
+    var initHeight = col + tit + absTit; //初始光标高度
+    var c = zss_editor.getCaretYPosition()+initHeight + lineHeight; //初始光标位置为 (4 + 栏目/标题/摘要的高度)
+    return c;
+}
+
+zss_editor.vj_getY = function() {
+    var offsetY;//滚动条位置
+    if (document.documentElement && document.documentElement.scrollTop) {
+        offsetY = document.documentElement.scrollTop;
+    } else if (document.body) {
+        offsetY = document.body.scrollTop;
+    }
+    
+     var height = zss_editor.contentHeight;
+    return offsetY + height;
+}
+
+zss_editor.vj_getYY = function() {
+    var newPos = document.body.scrollHeight
+//    var height = zss_editor.contentHeight;
+    return newPos ;
+}
+
+zss_editor.vj_getHeight = function() {
+   var height = zss_editor.contentHeight;
+    return height;
 }
 
 // This will show up in the XCode console as we are able to push this into an NSLog.
@@ -527,7 +587,7 @@ zss_editor.getHTML = function() {
     
     // Get the contents
     var h = document.getElementById("zss_editor_content").innerHTML;
-    
+        
     return h;
 }
 

@@ -75,7 +75,6 @@ typedef void (^callBack)(NSString *html);
 
 - (void)vj_getHTMLTitle:(callBack)block;
 - (void)vj_getHTMLAbstract:(callBack)block;
-
 -(void)setColumnTextWithText:(NSString *)text;
 
 @end

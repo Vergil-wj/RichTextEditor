@@ -15,8 +15,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface WKWebView (HackishAccessoryHiding)
 
-- (void)removeInputAccessoryViewFromWKWebView:(WKWebView *)webView;
+/**
+ 去掉键盘自带的工具条
+ */
+@property (nonatomic, assign) BOOL hidesInputAccessoryView;
 
+/**
+ web页面获取焦点时弹出键盘
+ */
 -(void)allowDisplayingKeyboardWithoutUserAction;
 
 @end

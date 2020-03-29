@@ -9,47 +9,68 @@
 #import "WKWebView+HackishAccessoryHiding.h"
 #import <objc/runtime.h>
 
+static const char * const hackishFixClassName = "UIWebBrowserViewMinusAccessoryView";
+static Class hackishFixClass = Nil;
+
 
 @implementation WKWebView (HackishAccessoryHiding)
 
-- (void)removeInputAccessoryViewFromWKWebView:(WKWebView *)webView {
-    UIView *targetView;
-
-    for (UIView *view in webView.scrollView.subviews) {
-        if([[view.class description] hasPrefix:@"WKContent"]) {
-            targetView = view;
-        }
-    }
-
-    if (!targetView) {
-        return;
-    }
-
-    NSString *noInputAccessoryViewClassName = [NSString stringWithFormat:@"%@_NoInputAccessoryView", targetView.class.superclass];
-    Class newClass = NSClassFromString(noInputAccessoryViewClassName);
-
-    if(newClass == nil) {
-        newClass = objc_allocateClassPair(targetView.class, [noInputAccessoryViewClassName cStringUsingEncoding:NSASCIIStringEncoding], 0);
-        if(!newClass) {
-            return;
-        }
-
-        Method method = class_getInstanceMethod([self class], @selector(inputAccessoryView));
-
-        class_addMethod(newClass, @selector(inputAccessoryView), method_getImplementation(method), method_getTypeEncoding(method));
-
-        objc_registerClassPair(newClass);
-    }
-
-    object_setClass(targetView, newClass);
+- (BOOL) hidesInputAccessoryView {
+    UIView *browserView = [self hackishlyFoundBrowserView];
+    return [browserView class] == hackishFixClass;
 }
 
-- (id)inputAccessoryView {
+- (void) setHidesInputAccessoryView:(BOOL)value {
+    UIView *browserView = [self hackishlyFoundBrowserView];
+    if (browserView == nil) {
+        return;
+    }
+    [self ensureHackishSubclassExistsOfBrowserViewClass:[browserView class]];
+    
+    if (value) {
+        object_setClass(browserView, hackishFixClass);
+    }
+    else {
+        Class normalClass = objc_getClass("WKContentView");
+        object_setClass(browserView, normalClass);
+    }
+    [browserView reloadInputViews];
+
+}
+
+- (void)ensureHackishSubclassExistsOfBrowserViewClass:(Class)browserViewClass {
+    if (!hackishFixClass) {
+        Class newClass = objc_allocateClassPair(browserViewClass, hackishFixClassName, 0);
+        newClass = objc_allocateClassPair(browserViewClass, hackishFixClassName, 0);
+        IMP nilImp = [self methodForSelector:@selector(methodReturningNil)];
+        class_addMethod(newClass, @selector(inputAccessoryView), nilImp, "@@:");
+        objc_registerClassPair(newClass);
+        
+        hackishFixClass = newClass;
+    }
+}
+
+- (UIView *)hackishlyFoundBrowserView {
+    UIScrollView *scrollView = self.scrollView;
+    
+    UIView *browserView = nil;
+    for (UIView *subview in scrollView.subviews) {
+        if ([NSStringFromClass([subview class]) hasPrefix:@"WKContentView"]) {
+            browserView = subview;
+            break;
+        }
+    }
+    return browserView;
+}
+
+- (id)methodReturningNil {
     return nil;
 }
 
 
-
+/**
+web页面获取焦点时弹出键盘
+*/
 -(void)allowDisplayingKeyboardWithoutUserAction {
     Class class = NSClassFromString(@"WKContentView");
         NSOperatingSystemVersion iOS_11_3_0 = (NSOperatingSystemVersion){11, 3, 0};
