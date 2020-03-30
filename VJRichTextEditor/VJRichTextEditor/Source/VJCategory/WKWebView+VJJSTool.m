@@ -112,20 +112,37 @@
 }
 
 #pragma mark 插入图片
-///准备插入图片
+///准备插入
 -(void)prepareInsertImage{
     [self evaluateJavaScript:@"zss_editor.prepareInsert();" completionHandler:nil];
 }
 
 // 插入 url 图片
 - (void)insertImage:(NSString *)url alt:(NSString *)alt{
-    NSString *trigger = [NSString stringWithFormat:@"zss_editor.insertImage(\"%@\", \"%@\");", url, alt];
-    [self evaluateJavaScript:trigger completionHandler:nil];
+    
+    //增加<span>标签
+    [self evaluateJavaScript:@"zss_editor.priInsertImage();" completionHandler:nil];
+    
+    //延迟1s是在等待动态增加的标签<span>加入到DOM中,再向其中新增图片
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        
+        [self prepareInsertImage];
+        NSString *trigger = [NSString stringWithFormat:@"zss_editor.insertImage(\"%@\", \"%@\");", url, alt];
+        [self evaluateJavaScript:trigger completionHandler:nil];
+        
+    });
+
 }
 
 //插入本地图片
 - (void)insertImageBase64String:(NSString *)imageBase64String alt:(NSString *)alt {
+        
     NSString *trigger = [NSString stringWithFormat:@"zss_editor.insertImageBase64String(\"%@\", \"%@\");", imageBase64String, alt];
+    [self evaluateJavaScript:trigger completionHandler:nil];
+}
+
+- (void)updateImageBase64String:(NSString *)imageBase64String alt:(NSString *)alt {
+    NSString *trigger = [NSString stringWithFormat:@"zss_editor.updateImageBase64String(\"%@\", \"%@\");", imageBase64String, alt];
     [self evaluateJavaScript:trigger completionHandler:nil];
 }
 

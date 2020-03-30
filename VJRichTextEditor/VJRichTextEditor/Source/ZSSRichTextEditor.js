@@ -43,51 +43,51 @@ zss_editor.init = function() {
     
     
     $('#zss_editor_content').on('touchend', function(e) {
-                                zss_editor.enabledEditingItems(e);
-//                                var clicked = $(e.target);
-//                                if (!clicked.hasClass('zs_active')) {
-//                                $('img').removeClass('zs_active');
-//                                }
-                                });
+        zss_editor.enabledEditingItems(e);
+        //                                var clicked = $(e.target);
+        //                                if (!clicked.hasClass('zs_active')) {
+        //                                $('img').removeClass('zs_active');
+        //                                }
+    });
     
     $("#zss_editor_content").focus(function(){
-      zss_editor.touchbegin = true;
+        zss_editor.touchbegin = true;
     });
     
     $(document).on('selectionchange',function(e){
-                   zss_editor.calculateEditorHeightWithCaretPosition();
-//                   zss_editor.setScrollPosition();
-                   zss_editor.enabledEditingItems(e);
-                   });
+        zss_editor.calculateEditorHeightWithCaretPosition();
+        //                   zss_editor.setScrollPosition();
+        zss_editor.enabledEditingItems(e);
+    });
     
-
-//    $(window).on('touchmove', function(e) {
-//                 zss_editor.isDragging = true;
-//                 zss_editor.updateScrollOffset = true;
-////                 zss_editor.setScrollPosition();
-//                 zss_editor.enabledEditingItems(e);
-//                 });
-//    $(window).on('touchstart', function(e) {
-//                 zss_editor.isDragging = false;
-//                 });
-//    $(window).on('touchend', function(e) {
-//                 if (!zss_editor.isDragging && (e.target.id == "zss_editor_footer"||e.target.nodeName.toLowerCase() == "html")) {
-//                     zss_editor.calculateEditorHeightWithCaretPosition();
-//                 zss_editor.focusEditor();
-//                 }
-//                 });
+    
+    //    $(window).on('touchmove', function(e) {
+    //                 zss_editor.isDragging = true;
+    //                 zss_editor.updateScrollOffset = true;
+    ////                 zss_editor.setScrollPosition();
+    //                 zss_editor.enabledEditingItems(e);
+    //                 });
+    //    $(window).on('touchstart', function(e) {
+    //                 zss_editor.isDragging = false;
+    //                 });
+    //    $(window).on('touchend', function(e) {
+    //                 if (!zss_editor.isDragging && (e.target.id == "zss_editor_footer"||e.target.nodeName.toLowerCase() == "html")) {
+    //                     zss_editor.calculateEditorHeightWithCaretPosition();
+    //                 zss_editor.focusEditor();
+    //                 }
+    //                 });
     
 }
 
 zss_editor.calculateEditorHeightWithCaretPosition = function() {
     
     var artContent = document.getElementById('zss_editor_content');
-
+    
     if (artContent == document.activeElement) {
-
+        
         //行高
         var lineHeight = 28;
-
+        
         //栏目\标题\摘要高度
         var col = document.getElementById("vj_column").offsetHeight;
         var tit = document.getElementById("vj_title").offsetHeight;
@@ -96,7 +96,7 @@ zss_editor.calculateEditorHeightWithCaretPosition = function() {
         
         //光标位置为
         var c = zss_editor.getCaretYPosition()+initHeight+ lineHeight;
-      
+        
         //滚动条滚动距离,刚开为0;
         var offsetY;
         if (document.documentElement && document.documentElement.scrollTop) {
@@ -106,15 +106,15 @@ zss_editor.calculateEditorHeightWithCaretPosition = function() {
         }
         
         //返回文档在窗口垂直方向滚动的像素。
-//        var newPos = window.pageYOffset;
-
+        //        var newPos = window.pageYOffset;
+        
         //contentHeight
         var height = zss_editor.contentHeight;
         
         if(c >= height) { //光标位置 > contentHeight
             
             var a = offsetY + height - c;
-
+            
             if(a>0 && a<lineHeight){
                 var pos = c - height + lineHeight;
                 window.scrollTo(0, pos);
@@ -133,7 +133,7 @@ zss_editor.calculateEditorHeightWithCaretPosition = function() {
             
         }
         
-       
+        
     }
 }
 
@@ -142,7 +142,7 @@ zss_editor.vj_getC = function() {
     var col = document.getElementById("vj_column").offsetHeight;
     var tit = document.getElementById("vj_title").offsetHeight;
     var absTit = document.getElementById("vj_abstract-title").offsetHeight;
-
+    
     var initHeight = col + tit + absTit; //初始光标高度
     var c = zss_editor.getCaretYPosition()+initHeight + lineHeight; //初始光标位置为 (4 + 栏目/标题/摘要的高度)
     return c;
@@ -156,30 +156,30 @@ zss_editor.vj_getY = function() {
         offsetY = document.body.scrollTop;
     }
     
-     var height = zss_editor.contentHeight;
+    var height = zss_editor.contentHeight;
     return offsetY + height;
 }
 
 zss_editor.vj_getYY = function() {
     var newPos = document.body.scrollHeight
-//    var height = zss_editor.contentHeight;
+    //    var height = zss_editor.contentHeight;
     return newPos ;
 }
 
 zss_editor.vj_getHeight = function() {
-   var height = zss_editor.contentHeight;
+    var height = zss_editor.contentHeight;
     return height;
 }
 
 // This will show up in the XCode console as we are able to push this into an NSLog.
 zss_editor.debug = function(msg) {
-//    window.location = 'debug://'+msg;
+    //    window.location = 'debug://'+msg;
 }
 
 
 zss_editor.setScrollPosition = function() {
     var position = window.pageYOffset;
-//    window.location = 'scroll://'+position;
+    //    window.location = 'scroll://'+position;
 }
 
 
@@ -188,16 +188,16 @@ zss_editor.setPlaceholder = function(placeholder) {
     var editor = $('#zss_editor_content');
     
     //set placeHolder
-	editor.attr("placeholder",placeholder);
-	
-    //set focus			 
+    editor.attr("placeholder",placeholder);
+    
+    //set focus
     editor.focusout(function(){
         var element = $(this);
         if (!element.text().trim().length) {
             element.empty();
         }
     });
-
+    
 }
 
 zss_editor.setFooterHeight = function(footerHeight) {
@@ -223,12 +223,22 @@ zss_editor.getCaretYPosition = function() {
 zss_editor.backuprange = function(){
     var selection = window.getSelection();
     var range = selection.getRangeAt(0);
+    
     zss_editor.currentSelection = {"startContainer": range.startContainer, "startOffset":range.startOffset,"endContainer":range.endContainer, "endOffset":range.endOffset};
 }
 
-zss_editor.restorerange = function(){
+zss_editor.testRange = function(){
+    
     var selection = window.getSelection();
-    selection.removeAllRanges();
+    var range = selection.getRangeAt(0);
+    
+    return range.endOffset;
+}
+
+
+zss_editor.restorerange = function(){
+    var selection = window.getSelection(); //光标所在位置
+    selection.removeAllRanges(); //该方法用于将用户当前选取的所有内容设定为非选取状态
     var range = document.createRange();
     range.setStart(zss_editor.currentSelection.startContainer, zss_editor.currentSelection.startOffset);
     range.setEnd(zss_editor.currentSelection.endContainer, zss_editor.currentSelection.endOffset);
@@ -386,24 +396,24 @@ zss_editor.setOutdent = function() {
 }
 
 zss_editor.setFontFamily = function(fontFamily) {
-
-	zss_editor.restorerange();
-	document.execCommand("styleWithCSS", null, true);
-	document.execCommand("fontName", false, fontFamily);
-	document.execCommand("styleWithCSS", null, false);
-	zss_editor.enabledEditingItems();
-		
+    
+    zss_editor.restorerange();
+    document.execCommand("styleWithCSS", null, true);
+    document.execCommand("fontName", false, fontFamily);
+    document.execCommand("styleWithCSS", null, false);
+    zss_editor.enabledEditingItems();
+    
 }
 
 zss_editor.setTextColor = function(color) {
-		
+    
     zss_editor.restorerange();
     document.execCommand("styleWithCSS", null, true);
     document.execCommand('foreColor', false, color);
     document.execCommand("styleWithCSS", null, false);
     zss_editor.enabledEditingItems();
     // document.execCommand("removeFormat", false, "foreColor"); // Removes just foreColor
-	
+    
 }
 
 zss_editor.setBackgroundColor = function(color) {
@@ -528,11 +538,31 @@ zss_editor.prepareInsert = function() {
     zss_editor.backuprange();
 }
 
-zss_editor.insertImage = function(url, alt) {
+//先创建一个<span></span>标签
+//延迟1s等待动态增加的标签<span>加入到DOM中,再向其中新增图片
+//为什么不直接创建<img> 标签并指定src呢? 因为图片显示不出来,不知道什么原因
+zss_editor.priInsertImage = function(){
     zss_editor.restorerange();
-    var html = '<img src="'+url+'" alt="'+alt+'" />';
+    var html = '<span id="imageSpan"></span>';
     zss_editor.insertHTML(html);
     zss_editor.enabledEditingItems();
+}
+
+//插入url图片
+zss_editor.insertImage = function(url, alt) {
+    var img = document.createElement('img');//创建一个标签
+    img.setAttribute('src',url);//给标签定义src链接
+    img.setAttribute('alt',alt);//给标签定义alt
+    document.getElementById('imageSpan').appendChild(img);//放到指定的id里
+    
+    zss_editor.deletInsertImageSpan();//删除插入url图片时创建的<span></span>标签
+}
+
+//删除插入url图片时创建的<span></span>标签
+zss_editor.deletInsertImageSpan = function(){
+    var html = $('#imageSpan').html();
+    $('#imageSpan').before(html);
+    $('#imageSpan').remove();
 }
 
 zss_editor.insertImageBase64String = function(imageBase64String, alt) {
@@ -561,33 +591,33 @@ zss_editor.getHTML = function() {
     if (img.length != 0) {
         $('img').removeClass('zs_active');
         $('img').each(function(index, e) {
-                      var image = $(this);
-                      var zs_class = image.attr('class');
-                      if (typeof(zs_class) != "undefined") {
-                      if (zs_class == '') {
-                      image.removeAttr('class');
-                      }
-                      }
-                      });
+            var image = $(this);
+            var zs_class = image.attr('class');
+            if (typeof(zs_class) != "undefined") {
+                if (zs_class == '') {
+                    image.removeAttr('class');
+                }
+            }
+        });
     }
     
     // Blockquote
     var bq = $('blockquote');
     if (bq.length != 0) {
         bq.each(function() {
-                var b = $(this);
-                if (b.css('border').indexOf('none') != -1) {
+            var b = $(this);
+            if (b.css('border').indexOf('none') != -1) {
                 b.css({'border': ''});
-                }
-                if (b.css('padding').indexOf('0px') != -1) {
+            }
+            if (b.css('padding').indexOf('0px') != -1) {
                 b.css({'padding': ''});
-                }
-                });
+            }
+        });
     }
     
     // Get the contents
     var h = document.getElementById("zss_editor_content").innerHTML;
-        
+    
     return h;
 }
 
@@ -652,14 +682,14 @@ zss_editor.enabledEditingItems = function(e) {
         items.push(formatBlock);
     }
     // Images
-//    $('img').bind('touchstart', function(e) {
-//                  $('img').removeClass('zs_active');
-//                  $(this).addClass('zs_active');
-//                  });
+    //    $('img').bind('touchstart', function(e) {
+    //                  $('img').removeClass('zs_active');
+    //                  $(this).addClass('zs_active');
+    //                  });
     
     // Use jQuery to figure out those that are not supported
     if (typeof(e) != "undefined") {
-       
+        
         // The target element
         var s = zss_editor.getSelectedNode();
         var t = $(s);
@@ -675,13 +705,13 @@ zss_editor.enabledEditingItems = function(e) {
         if (textColor.length != 0 && textColor != 'rgba(0, 0, 0, 0)' && textColor != 'rgb(0, 0, 0)' && textColor != 'transparent') {
             items.push('textColor');
         }
-		
-		//Fonts
-		var font = t.css('font-family');
-		if (font.length != 0 && font != 'Arial, Helvetica, sans-serif') {
-			items.push('fonts');	
-		}
-		
+        
+        //Fonts
+        var font = t.css('font-family');
+        if (font.length != 0 && font != 'Arial, Helvetica, sans-serif') {
+            items.push('fonts');
+        }
+        
         // Link
         if (nodeName == 'a') {
             zss_editor.currentEditingLink = t;
@@ -729,11 +759,11 @@ zss_editor.enabledEditingItems = function(e) {
     if (artContent == document.activeElement) {
         window.location = "callback://0/"+items.join(',');
     }
-
+    
 }
 
 zss_editor.focusEditor = function() {
-
+    
     var editor = $('#zss_editor_content');
     var range = document.createRange();
     range.selectNodeContents(editor.get(0));
@@ -754,11 +784,11 @@ zss_editor.setCustomCSS = function(customCSS) {
     
     //set focus
     /*editor.focusout(function(){
-                    var element = $(this);
-                    if (!element.text().trim().length) {
-                    element.empty();
-                    }
-                    });*/
+     var element = $(this);
+     if (!element.text().trim().length) {
+     element.empty();
+     }
+     });*/
     
     
     

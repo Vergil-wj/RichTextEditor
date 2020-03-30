@@ -13,7 +13,7 @@
 -(void)viewDidLoad{
     [super viewDidLoad];
     
-    [self setHTML:@"这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试这是一个测试"];
+    [self setHTML:@"这是一个测试"];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"HTML" style:UIBarButtonItemStylePlain target:self action:@selector(getHTMLText)];
     
@@ -21,14 +21,14 @@
 
 - (void)getHTMLText{
     
-    [self vj_getHTMLTitle:^(NSString *html) {
-        NSLog(@"标题 :\n %@",html);
-    }];
-    
-    [self vj_getHTMLAbstract:^(NSString *html) {
-       
-        NSLog(@"摘要 :\n %@",html);
-    }];
+//    [self vj_getHTMLTitle:^(NSString *html) {
+//        NSLog(@"标题 :\n %@",html);
+//    }];
+//
+//    [self vj_getHTMLAbstract:^(NSString *html) {
+//
+//        NSLog(@"摘要 :\n %@",html);
+//    }];
     
    
     [self getHTML:^(NSString *html) {
@@ -36,9 +36,9 @@
     }];
     
     
-    [self getText:^(NSString *html) {
-        NSLog(@"文本格式 :\n %@",html);
-    }];
+//    [self getText:^(NSString *html) {
+//        NSLog(@"文本格式 :\n %@",html);
+//    }];
     
     
 }

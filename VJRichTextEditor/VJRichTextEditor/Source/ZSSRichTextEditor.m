@@ -151,8 +151,8 @@
             [self insertLink];
         }
             break;
-        case 5:{//本地图片
-            [self insertImageFromDevice];
+        case 5:{//图片
+            [self insertImage];
         }
             break;
         default:
@@ -278,7 +278,7 @@
 
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context{
-    
+
     if([keyPath isEqualToString:@"transform"]){
         
         CGRect fontBarFrame = self.fontBar.frame;
@@ -340,6 +340,12 @@
     
     [self.editorView evaluateJavaScript:@"zss_editor.getHTML();" completionHandler:^(id _Nullable html, NSError * _Nullable error) {
         
+        
+        if (error != NULL) {
+            NSLog(@"HTML Parsing Error: %@", error);
+        }
+               
+        
         html = [self removeQuotesFromHTML:html];
         
         [self tidyHTML:html complete:^(NSString *html) {
@@ -381,7 +387,7 @@
     if (self.toolBarView.transform.ty >= 0) {
         [self.editorView focusTextEditor];
     }
-    [self.editorView evaluateJavaScript:@"zss_editor.prepareInsert();" completionHandler:nil];
+    [self.editorView prepareInsertImage];
     [self showInsertLinkDialogWithLink:nil title:nil];
 }
 
@@ -408,7 +414,6 @@
     }];
     
     [alertController addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
-        //            [self.editorView focusTextEditor];
     }]];
     
     [alertController addAction:[UIAlertAction actionWithTitle:@"完成" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -417,36 +422,86 @@
         UITextField *title = [alertController.textFields objectAtIndex:1];
         [self.editorView insertLink:linkURL.text title:title.text];
         
-        //            [self.editorView focusTextEditor];
+//      [self.editorView focusTextEditor];
     }]];
     [self presentViewController:alertController animated:YES completion:NULL];
     
 }
 
 #pragma mark - 插入图片
+
+-(void)insertImage{
+    
+    
+    [self.editorView prepareInsertImage];
+    
+    
+    UIAlertController *con = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction *device = [UIAlertAction actionWithTitle:@"本地相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self insertImageFromDevice];
+        }];
+    }];
+    UIAlertAction *url = [UIAlertAction actionWithTitle:@"网络相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self insertImageFromUrl];
+        }];
+        
+    }];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [con addAction:device];
+    [con addAction:url];
+    [con addAction:cancel];
+    [self presentViewController:con animated:YES completion:nil];
+    
+}
+
 - (void)insertImageFromDevice {
+    
     [self setUpImagePicker];
     [self presentViewController:self.imagePicker animated:YES completion:nil];
 }
 
-- (void)insertImage:(NSString *)url alt:(NSString *)alt {
-    NSString *trigger = [NSString stringWithFormat:@"zss_editor.insertImage(\"%@\", \"%@\");", url, alt];
-    [self.editorView evaluateJavaScript:trigger completionHandler:nil];
+-(void)insertImageFromUrl{
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"插入图片链接" message:nil preferredStyle:UIAlertControllerStyleAlert];
+       
+       [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+           textField.placeholder = @"URL (必填)";
+           textField.rightViewMode = UITextFieldViewModeAlways;
+           textField.clearButtonMode = UITextFieldViewModeAlways;
+       }];
+       [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+           textField.placeholder = @"名称";
+           textField.clearButtonMode = UITextFieldViewModeAlways;
+           textField.secureTextEntry = NO;
+       }];
+       
+    [alertController addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [alertController addAction:[UIAlertAction actionWithTitle:@"完成" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        
+        UITextField *linkURL = [alertController.textFields objectAtIndex:0];
+        UITextField *title = [alertController.textFields objectAtIndex:1];
+        
+        
+        
+        if (self.toolBarView.transform.ty >= 0) {
+            [self.editorView focusTextEditor];
+        }
+        
+        [self.editorView prepareInsertImage];
+        [self.editorView insertImage:linkURL.text alt:title.text];
+        
+    }]];
+    [self presentViewController:alertController animated:YES completion:NULL];
+    
+    
 }
-
 
 - (void)updateImage:(NSString *)url alt:(NSString *)alt {
     NSString *trigger = [NSString stringWithFormat:@"zss_editor.updateImage(\"%@\", \"%@\");", url, alt];
-    [self.editorView evaluateJavaScript:trigger completionHandler:nil];
-}
-
-- (void)insertImageBase64String:(NSString *)imageBase64String alt:(NSString *)alt {
-    NSString *trigger = [NSString stringWithFormat:@"zss_editor.insertImageBase64String(\"%@\", \"%@\");", imageBase64String, alt];
-    [self.editorView evaluateJavaScript:trigger completionHandler:nil];
-}
-
-- (void)updateImageBase64String:(NSString *)imageBase64String alt:(NSString *)alt {
-    NSString *trigger = [NSString stringWithFormat:@"zss_editor.updateImageBase64String(\"%@\", \"%@\");", imageBase64String, alt];
     [self.editorView evaluateJavaScript:trigger completionHandler:nil];
 }
 
@@ -460,11 +515,24 @@
     
     UIImage *selectedImage = info[UIImagePickerControllerEditedImage]?:info[UIImagePickerControllerOriginalImage];
     
-    NSData *scaledImageData = UIImageJPEGRepresentation(selectedImage, 0.8);
+    //Scale the image
+    CGSize targetSize = CGSizeMake(selectedImage.size.width * 0.5, selectedImage.size.height * 0.5);
+    UIGraphicsBeginImageContext(targetSize);
+    [selectedImage drawInRect:CGRectMake(0,0,targetSize.width,targetSize.height)];
+    UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    NSData *scaledImageData = UIImageJPEGRepresentation(scaledImage, 0.8);
     
     //Encode the image data as a base64 string
     NSString *imageBase64String = [scaledImageData base64EncodedStringWithOptions:0];
-    [self insertImageBase64String:imageBase64String alt:nil];
+    
+    if (self.toolBarView.transform.ty >= 0) {
+        [self.editorView focusTextEditor];
+    }
+    
+    [self.editorView prepareInsertImage];
+    [self.editorView insertImageBase64String:imageBase64String alt:@""];
 //    [Utils showGlobleHud:nil];
 //    [NetworkRequest mediaUploadImage:selectedImage complete:^(NSDictionary *resp, NSError *err) {
 //        [Utils hideGlobleHud];
@@ -495,8 +563,7 @@
     
     
     self.editorLoaded = YES;
-    
-    
+
     if (!self.internalHTML) {
         self.internalHTML = @"";
     }
@@ -567,8 +634,7 @@
 }
 
 #pragma mark - WKScriptMessageHandler
-- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message
-{
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message{
     
     NSLog(@"name  = %@",message.name);
     //在这里截取H5调用的本地方法
@@ -580,7 +646,6 @@
 -(void)didSelectedColumn{
     //需要重写
 }
-
 
 #pragma mark - methods
 
@@ -635,7 +700,6 @@
 }
 
 
-
 #pragma mark - setter
 
 -(void)initConfig{
@@ -672,9 +736,6 @@
     return _editorView;
 }
 
-
-
-
 - (KWEditorBar *)toolBarView{
     if (!_toolBarView) {
         _toolBarView = [KWEditorBar editorBar];
@@ -697,13 +758,6 @@
 #pragma mark 图片选择器
 
 - (void)setUpImagePicker {
-    
-    if (self.toolBarView.transform.ty >= 0) {
-        [self.editorView focusTextEditor];
-    }
-    
-    //准备插入图片
-    [self.editorView prepareInsertImage];
     
     if (!self.imagePicker) {
         self.imagePicker = [[UIImagePickerController alloc] init];

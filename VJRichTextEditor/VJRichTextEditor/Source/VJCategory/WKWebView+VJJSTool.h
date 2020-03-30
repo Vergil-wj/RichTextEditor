@@ -66,6 +66,7 @@ typedef void (^callBack)(NSString *html);
 - (void)insertImage:(NSString *)url alt:(NSString *)alt;
 ///插入本地图片
 - (void)insertImageBase64String:(NSString *)imageBase64String alt:(NSString *)alt;
+- (void)updateImageBase64String:(NSString *)imageBase64String alt:(NSString *)alt;
 
 ///聚焦内容
 - (void)showKeyboardContent;
