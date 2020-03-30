@@ -137,40 +137,6 @@ zss_editor.calculateEditorHeightWithCaretPosition = function() {
     }
 }
 
-zss_editor.vj_getC = function() {
-    var lineHeight = 28;    //行高
-    var col = document.getElementById("vj_column").offsetHeight;
-    var tit = document.getElementById("vj_title").offsetHeight;
-    var absTit = document.getElementById("vj_abstract-title").offsetHeight;
-    
-    var initHeight = col + tit + absTit; //初始光标高度
-    var c = zss_editor.getCaretYPosition()+initHeight + lineHeight; //初始光标位置为 (4 + 栏目/标题/摘要的高度)
-    return c;
-}
-
-zss_editor.vj_getY = function() {
-    var offsetY;//滚动条位置
-    if (document.documentElement && document.documentElement.scrollTop) {
-        offsetY = document.documentElement.scrollTop;
-    } else if (document.body) {
-        offsetY = document.body.scrollTop;
-    }
-    
-    var height = zss_editor.contentHeight;
-    return offsetY + height;
-}
-
-zss_editor.vj_getYY = function() {
-    var newPos = document.body.scrollHeight
-    //    var height = zss_editor.contentHeight;
-    return newPos ;
-}
-
-zss_editor.vj_getHeight = function() {
-    var height = zss_editor.contentHeight;
-    return height;
-}
-
 // This will show up in the XCode console as we are able to push this into an NSLog.
 zss_editor.debug = function(msg) {
     //    window.location = 'debug://'+msg;

@@ -547,7 +547,7 @@
 //        
 //    }];
     
-    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+    [picker.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 

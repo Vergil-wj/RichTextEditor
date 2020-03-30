@@ -63,7 +63,6 @@ ZSSRichTextEditor.js
 
 ```
 zss_editor.calculateEditorHeightWithCaretPosition = function() {}
-
 ```
 
 ### 新增标题与副标题
